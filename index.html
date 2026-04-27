@@ -1,0 +1,1826 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apuntes de Bash Script</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1117;
+    --bg2: #161b27;
+    --bg3: #1e2535;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --text: #e8eaf0;
+    --text2: #8b92a8;
+    --text3: #545d75;
+    --accent: #4ade80;
+    --accent2: #22c55e;
+    --accent-glow: rgba(74,222,128,0.15);
+    --blue: #60a5fa;
+    --amber: #fbbf24;
+    --red: #f87171;
+    --purple: #a78bfa;
+    --cyan: #22d3ee;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 260px;
+    min-width: 260px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-header {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 13px;
+    color: #0e1117;
+  }
+
+  .logo-text {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    color: var(--text2);
+    font-family: var(--mono);
+    margin-top: 2px;
+  }
+
+  .nav-section {
+    padding: 16px 12px 8px;
+  }
+
+  .nav-section-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding: 0 8px;
+    margin-bottom: 6px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text2);
+    transition: all 0.15s;
+    text-decoration: none;
+    font-family: var(--sans);
+    font-weight: 500;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+  }
+
+  .nav-item:hover {
+    background: rgba(255,255,255,0.05);
+    color: var(--text);
+  }
+
+  .nav-item.active {
+    background: var(--accent-glow);
+    color: var(--accent);
+    border: 1px solid rgba(74,222,128,0.2);
+  }
+
+  .nav-item .nav-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    min-width: 18px;
+  }
+
+  .nav-item.active .nav-num { color: var(--accent2); }
+
+  /* Main content */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 100vh;
+  }
+
+  .page-header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 48px 28px;
+  }
+
+  .breadcrumb {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text3);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .breadcrumb span { color: var(--accent); }
+
+  .page-title {
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+
+  .page-desc {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  /* Content area */
+  .content {
+    padding: 40px 48px;
+    max-width: 860px;
+  }
+
+  /* Section */
+  .section { margin-bottom: 48px; }
+
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: -0.3px;
+  }
+
+  .section-title::before {
+    content: '';
+    display: inline-block;
+    width: 4px; height: 20px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  .section-intro {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  /* Code blocks */
+  .code-block {
+    background: #0a0d14;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-lang {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .code-dots { display: flex; gap: 5px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #f87171; }
+  .dot-y { background: #fbbf24; }
+  .dot-g { background: #4ade80; }
+
+  .code-body {
+    padding: 20px;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.8;
+    overflow-x: auto;
+  }
+
+  /* Syntax highlighting */
+  .kw { color: #c678dd; }       /* keywords: if, for, while, function */
+  .cmd { color: #61afef; }      /* commands: echo, ls, grep */
+  .str { color: #98c379; }      /* strings */
+  .var { color: #e5c07b; }      /* variables $VAR */
+  .cmt { color: #5c6370; font-style: italic; } /* comments */
+  .num { color: #d19a66; }      /* numbers */
+  .op  { color: #56b6c2; }      /* operators */
+  .flag { color: #abb2bf; }     /* flags -r -a */
+
+  /* Info cards */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+
+  .info-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+
+  .info-card-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+    font-family: var(--mono);
+  }
+
+  .info-card.accent { border-color: rgba(74,222,128,0.3); }
+  .info-card.accent .info-card-title { color: var(--accent); }
+  .info-card.blue { border-color: rgba(96,165,250,0.3); }
+  .info-card.blue .info-card-title { color: var(--blue); }
+  .info-card.amber { border-color: rgba(251,191,36,0.3); }
+  .info-card.amber .info-card-title { color: var(--amber); }
+  .info-card.purple { border-color: rgba(167,139,250,0.3); }
+  .info-card.purple .info-card-title { color: var(--purple); }
+
+  .info-card p {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  /* Callout / Tip */
+  .tip {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-glow);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  .tip strong { color: var(--accent); }
+
+  .warning {
+    border-left: 3px solid var(--amber);
+    background: rgba(251,191,36,0.07);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  .warning strong { color: var(--amber); }
+
+  /* Table */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 16px 0;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  th {
+    background: rgba(255,255,255,0.04);
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text3);
+    font-family: var(--mono);
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 10px 16px;
+    font-size: 13px;
+    color: var(--text2);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    vertical-align: top;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  td:first-child { color: var(--accent); }
+
+  /* Badge */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: var(--mono);
+    font-weight: 700;
+  }
+
+  .badge-green { background: rgba(74,222,128,0.15); color: var(--accent); }
+  .badge-blue { background: rgba(96,165,250,0.15); color: var(--blue); }
+  .badge-red { background: rgba(248,113,113,0.15); color: var(--red); }
+
+  /* Pages */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* Inline code */
+  code {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    color: var(--accent);
+  }
+
+  /* Exercise */
+  .exercise {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 16px 0;
+  }
+
+  .exercise-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--purple);
+    font-family: var(--mono);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .exercise-title::before {
+    content: '▸';
+    font-size: 14px;
+  }
+
+  .exercise p {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .content { padding: 24px 20px; }
+    .page-header { padding: 24px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <div class="logo-icon">$_</div>
+      <div class="logo-text">Bash Script</div>
+    </div>
+    <div class="logo-sub">Apuntes completos · v1.0</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Fundamentos</div>
+    <button class="nav-item active" onclick="showPage('intro')">
+      <span class="nav-num">00</span> Introducción
+    </button>
+    <button class="nav-item" onclick="showPage('variables')">
+      <span class="nav-num">01</span> Variables
+    </button>
+    <button class="nav-item" onclick="showPage('tipos')">
+      <span class="nav-num">02</span> Tipos de datos
+    </button>
+    <button class="nav-item" onclick="showPage('entrada')">
+      <span class="nav-num">03</span> Entrada de datos
+    </button>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Control de flujo</div>
+    <button class="nav-item" onclick="showPage('condicionales')">
+      <span class="nav-num">04</span> Condicionales
+    </button>
+    <button class="nav-item" onclick="showPage('bucles')">
+      <span class="nav-num">05</span> Bucles
+    </button>
+    <button class="nav-item" onclick="showPage('case')">
+      <span class="nav-num">06</span> Case / Select
+    </button>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Funciones y arrays</div>
+    <button class="nav-item" onclick="showPage('funciones')">
+      <span class="nav-num">07</span> Funciones
+    </button>
+    <button class="nav-item" onclick="showPage('arrays')">
+      <span class="nav-num">08</span> Arrays
+    </button>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Avanzado</div>
+    <button class="nav-item" onclick="showPage('archivos')">
+      <span class="nav-num">09</span> Manejo de archivos
+    </button>
+    <button class="nav-item" onclick="showPage('procesos')">
+      <span class="nav-num">10</span> Procesos y señales
+    </button>
+    <button class="nav-item" onclick="showPage('regex')">
+      <span class="nav-num">11</span> Expresiones regulares
+    </button>
+    <button class="nav-item" onclick="showPage('debug')">
+      <span class="nav-num">12</span> Depuración
+    </button>
+  </div>
+</nav>
+
+<!-- Main area -->
+<main class="main">
+
+  <!-- PAGE 0: Introducción -->
+  <div class="page active" id="page-intro">
+    <div class="page-header">
+      <div class="breadcrumb">bash-apuntes / <span>00_introduccion.sh</span></div>
+      <h1 class="page-title">Introducción a Bash Script</h1>
+      <p class="page-desc">Fundamentos del shell scripting en sistemas Unix/Linux. Aprende a automatizar tareas y dominar la línea de comandos.</p>
+    </div>
+    <div class="content">
+
+      <div class="section">
+        <h2 class="section-title">¿Qué es Bash?</h2>
+        <p class="section-intro">Bash (Bourne Again SHell) es el intérprete de comandos más utilizado en sistemas Linux y macOS. Un script de Bash es simplemente un archivo de texto con una secuencia de comandos que el shell ejecuta de forma automatizada.</p>
+
+        <div class="info-grid">
+          <div class="info-card accent">
+            <div class="info-card-title">¿Para qué sirve?</div>
+            <p>Automatización de tareas, administración del sistema, procesamiento de archivos, despliegue de aplicaciones y muchas más.</p>
+          </div>
+          <div class="info-card blue">
+            <div class="info-card-title">Extensión del archivo</div>
+            <p>Los scripts Bash se guardan con extensión <code>.sh</code> aunque no es obligatorio — lo que importa es el shebang.</p>
+          </div>
+          <div class="info-card amber">
+            <div class="info-card-title">Dónde se usa</div>
+            <p>Linux, macOS, WSL (Windows Subsystem for Linux), servidores, CI/CD pipelines, Docker, etc.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Tu primer script</h2>
+        <p class="section-intro">Todo script comienza con el <strong>shebang</strong> (<code>#!/bin/bash</code>), que indica al sistema operativo qué intérprete usar para ejecutar el archivo.</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · hola_mundo.sh</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <div class="code-body"> <pre><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt"># Este es un comentario — el intérprete lo ignora</span>
+<span class="cmt"># Siempre empieza con el shebang en la línea 1</span>
+
+<span class="cmd">echo</span> <span class="str">"¡Hola, Mundo!"</span>
+<span class="cmd">echo</span> <span class="str">"Hoy es: "</span> <span class="op">$(</span><span class="cmd">date</span><span class="op">)</span>
+<span class="cmd">echo</span> <span class="str">"Usuario: </span><span class="var">$USER</span><span class="str">"</span>
+<span class="cmd">echo</span> <span class="str">"Directorio actual: </span><span class="var">$PWD</span><span class="str">"</span></code></pre></div>
+        </div>
+
+        <div class="tip"><strong>Cómo ejecutarlo:</strong> Primero dale permisos de ejecución con <code>chmod +x hola_mundo.sh</code>, luego ejecútalo con <code>./hola_mundo.sh</code></div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Comandos esenciales</h2>
+        <p class="section-intro">Los comandos de Bash se agrupan por función. Dominarlos es la base de cualquier script útil.</p>
+
+        <div style="font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);font-family:var(--mono);margin:20px 0 8px;">Entrada / Salida</div>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Comando</th><th>Descripción</th><th>Ejemplo</th></tr>
+            <tr><td>echo</td><td>Imprime texto en pantalla</td><td>echo "Hola mundo"</td></tr>
+            <tr><td>echo -n</td><td>Imprime sin salto de línea final</td><td>echo -n "Introduce: "</td></tr>
+            <tr><td>read</td><td>Lee entrada del usuario</td><td>read -p "Nombre: " var</td></tr>
+            <tr><td>cat</td><td>Muestra contenido de un archivo</td><td>cat archivo.txt</td></tr>
+          </table>
+        </div>
+
+        <div style="font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--blue);font-family:var(--mono);margin:20px 0 8px;">Navegación y archivos</div>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Comando</th><th>Descripción</th><th>Ejemplo</th></tr>
+            <tr><td>ls</td><td>Lista archivos del directorio</td><td>ls -la</td></tr>
+            <tr><td>cd</td><td>Cambia de directorio</td><td>cd /home/user</td></tr>
+            <tr><td>pwd</td><td>Muestra el directorio actual</td><td>pwd</td></tr>
+            <tr><td>touch</td><td>Crea un archivo vacío o actualiza su fecha</td><td>touch nuevo.txt</td></tr>
+            <tr><td>cp</td><td>Copia archivos o directorios</td><td>cp origen.txt destino.txt</td></tr>
+            <tr><td>mv</td><td>Mueve o renombra archivos</td><td>mv viejo.sh nuevo.sh</td></tr>
+            <tr><td>rm</td><td>Elimina archivos o directorios</td><td>rm -rf carpeta/</td></tr>
+            <tr><td>mkdir</td><td>Crea directorios</td><td>mkdir -p ruta/sub/dir</td></tr>
+            <tr><td>chmod</td><td>Cambia permisos de un archivo</td><td>chmod +x script.sh</td></tr>
+          </table>
+        </div>
+
+        <div style="font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--amber);font-family:var(--mono);margin:20px 0 8px;">Procesamiento de texto</div>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Comando</th><th>Descripción</th><th>Ejemplo</th></tr>
+            <tr><td>grep</td><td>Busca patrones en texto o archivos</td><td>grep "error" app.log</td></tr>
+            <tr><td>cut</td><td>Extrae columnas o campos de texto</td><td>cut -d: -f1 /etc/passwd</td></tr>
+            <tr><td>tr</td><td>Traduce o elimina caracteres</td><td>echo "hola" | tr 'a-z' 'A-Z'</td></tr>
+            <tr><td>wc</td><td>Cuenta líneas, palabras y caracteres</td><td>wc -l archivo.txt</td></tr>
+            <tr><td>sort</td><td>Ordena líneas de texto</td><td>sort -n numeros.txt</td></tr>
+            <tr><td>uniq</td><td>Elimina líneas duplicadas consecutivas</td><td>sort lista.txt | uniq</td></tr>
+            <tr><td>sed</td><td>Editor de flujo — sustituye y transforma texto</td><td>sed 's/foo/bar/g' f.txt</td></tr>
+            <tr><td>awk</td><td>Procesa y extrae campos de texto estructurado</td><td>awk '{print $1, $3}' datos.txt</td></tr>
+          </table>
+        </div>
+
+        <div style="font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--purple);font-family:var(--mono);margin:20px 0 8px;">Control del shell</div>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Comando</th><th>Descripción</th><th>Ejemplo</th></tr>
+            <tr><td>set</td><td>Configura opciones y atributos del shell</td><td>set -euo pipefail</td></tr>
+            <tr><td>set -x</td><td>Activa la traza de ejecución (debug)</td><td>set -x</td></tr>
+            <tr><td>set -e</td><td>Sale si algún comando devuelve error</td><td>set -e</td></tr>
+            <tr><td>set -u</td><td>Error si se usa variable no definida</td><td>set -u</td></tr>
+            <tr><td>set +x</td><td>Desactiva la traza (el + invierte la opción)</td><td>set +x</td></tr>
+            <tr><td>exit</td><td>Sale del script con un código de estado</td><td>exit 0</td></tr>
+          </table>
+        </div>
+
+        <div class="tip"><strong>Tip:</strong> Para ver la ayuda rápida de cualquier comando usa <code>comando --help</code> o <code>man comando</code> para el manual completo.</div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Ejemplos prácticos de los comandos nuevos</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · comandos_practicos.sh</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="cmt">## touch — crear archivo vacío o actualizar fecha</span>
+<span class="cmd">touch</span> <span class="str">log_$(date +%Y%m%d).txt</span>       <span class="cmt"># crea log_20240101.txt</span>
+<span class="cmd">touch</span> <span class="flag">-t</span> <span class="num">202301010000</span> <span class="str">archivo.txt</span>  <span class="cmt"># fija fecha manualmente</span>
+
+<span class="cmt">## cp — copiar archivos</span>
+<span class="cmd">cp</span> <span class="str">config.txt</span> <span class="str">config.bak</span>           <span class="cmt"># copia simple</span>
+<span class="cmd">cp</span> <span class="flag">-r</span> <span class="str">carpeta/</span> <span class="str">carpeta_backup/</span>    <span class="cmt"># copia recursiva de directorio</span>
+<span class="cmd">cp</span> <span class="flag">-p</span> <span class="str">original.sh</span> <span class="str">copia.sh</span>        <span class="cmt"># preserva permisos y fechas</span>
+
+<span class="cmt">## mv — mover o renombrar</span>
+<span class="cmd">mv</span> <span class="str">script_v1.sh</span> <span class="str">script_v2.sh</span>      <span class="cmt"># renombrar</span>
+<span class="cmd">mv</span> <span class="str">*.log</span> <span class="str">logs/</span>                    <span class="cmt"># mover todos los .log a carpeta logs/</span>
+
+<span class="cmt">## cut — extraer columnas</span>
+<span class="cmt"># -d define el delimitador, -f el número de campo</span>
+<span class="cmd">cut</span> <span class="flag">-d:</span> <span class="flag">-f1</span> <span class="str">/etc/passwd</span>          <span class="cmt"># → nombres de usuarios</span>
+<span class="cmd">cut</span> <span class="flag">-d,</span> <span class="flag">-f2,4</span> <span class="str">datos.csv</span>          <span class="cmt"># → columnas 2 y 4 del CSV</span>
+<span class="cmd">cut</span> <span class="flag">-c1-5</span> <span class="str">archivo.txt</span>             <span class="cmt"># → primeros 5 caracteres de cada línea</span>
+
+<span class="cmt">## tr — traducir / eliminar caracteres</span>
+<span class="cmd">echo</span> <span class="str">"hola mundo"</span> <span class="op">|</span> <span class="cmd">tr</span> <span class="str">'a-z'</span> <span class="str">'A-Z'</span>  <span class="cmt"># → HOLA MUNDO</span>
+<span class="cmd">echo</span> <span class="str">"a,b,c"</span> <span class="op">|</span> <span class="cmd">tr</span> <span class="str">','</span> <span class="str">' '</span>          <span class="cmt"># → a b c</span>
+<span class="cmd">echo</span> <span class="str">"hola  mundo"</span> <span class="op">|</span> <span class="cmd">tr</span> <span class="flag">-s</span> <span class="str">' '</span>    <span class="cmt"># → hola mundo (comprime espacios)</span>
+<span class="cmd">echo</span> <span class="str">"abc123"</span> <span class="op">|</span> <span class="cmd">tr</span> <span class="flag">-d</span> <span class="str">'0-9'</span>       <span class="cmt"># → abc (elimina dígitos)</span>
+
+<span class="cmt">## wc — contar</span>
+<span class="cmd">wc</span> <span class="flag">-l</span> <span class="str">archivo.txt</span>                  <span class="cmt"># número de líneas</span>
+<span class="cmd">wc</span> <span class="flag">-w</span> <span class="str">archivo.txt</span>                  <span class="cmt"># número de palabras</span>
+<span class="cmd">wc</span> <span class="flag">-c</span> <span class="str">archivo.txt</span>                  <span class="cmt"># número de bytes</span>
+<span class="cmd">echo</span> <span class="str">"hola"</span> <span class="op">|</span> <span class="cmd">wc</span> <span class="flag">-c</span>               <span class="cmt"># → 5 (4 letras + \n)</span>
+<span class="var">total</span>=<span class="op">$(</span><span class="cmd">wc</span> <span class="flag">-l</span> <span class="op"><</span> <span class="str">archivo.txt</span><span class="op">)</span>       <span class="cmt"># guardar en variable (sin nombre de archivo)</span>
+
+<span class="cmt">## awk — procesamiento de campos</span>
+<span class="cmt"># Estructura: awk 'condición { acción }' archivo</span>
+<span class="cmd">awk</span> <span class="str">'{print $1}'</span> <span class="str">datos.txt</span>         <span class="cmt"># primera columna de cada línea</span>
+<span class="cmd">awk</span> <span class="str">'{print $1, $NF}'</span> <span class="str">datos.txt</span>    <span class="cmt"># primera y última columna</span>
+<span class="cmd">awk</span> <span class="flag">-F:</span> <span class="str">'{print $1, $3}'</span> <span class="str">/etc/passwd</span>  <span class="cmt"># delimitador personalizado (:)</span>
+<span class="cmd">awk</span> <span class="str">'{suma += $1} END {print suma}'</span> <span class="str">nums.txt</span>  <span class="cmt"># sumar una columna</span>
+<span class="cmd">awk</span> <span class="str">'NR==3'</span> <span class="str">archivo.txt</span>            <span class="cmt"># mostrar solo la línea 3</span>
+<span class="cmd">awk</span> <span class="str">'$3 > 100'</span> <span class="str">ventas.txt</span>          <span class="cmt"># filtrar filas donde col3 > 100</span>
+<span class="cmd">df</span> <span class="flag">-h</span> <span class="op">|</span> <span class="cmd">awk</span> <span class="str">'NR>1 {print $1, $5}'</span>  <span class="cmt"># disco: dispositivo y uso%</span>
+
+<span class="cmt">## set — opciones del shell</span>
+<span class="kw">set</span> <span class="flag">-euo pipefail</span>   <span class="cmt"># combinación recomendada para producción</span>
+<span class="kw">set</span> <span class="flag">-x</span>               <span class="cmt"># activar debug (muestra cada comando ejecutado)</span>
+<span class="var">x</span>=<span class="num">5</span>; <span class="var">y</span>=<span class="num">10</span>
+<span class="kw">set</span> <span class="flag">+x</span>               <span class="cmt"># desactivar debug</span>
+<span class="kw">set</span> <span class="flag">--</span> <span class="str">"arg1"</span> <span class="str">"arg2"</span>  <span class="cmt"># redefine los argumentos posicionales $1, $2...</span></code></pre></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Códigos de salida</h2>
+        <p class="section-intro">Cada comando devuelve un código de salida. <code>0</code> significa éxito, cualquier otro número indica error. Se accede con la variable especial <code>$?</code>.</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · codigos_salida.sh</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <div class="code-body"><pre><code></code><span class="cmt">#!/bin/bash</span>
+
+<span class="cmd">ls</span> <span class="flag">/directorio-que-no-existe</span>
+<span class="cmd">echo</span> <span class="str">"Código de salida: </span><span class="var">$?</span><span class="str">"</span>  <span class="cmt"># Imprime: 2 (error)</span>
+
+<span class="cmd">ls</span> <span class="flag">/home</span>
+<span class="cmd">echo</span> <span class="str">"Código de salida: </span><span class="var">$?</span><span class="str">"</span>  <span class="cmt"># Imprime: 0 (éxito)</span>
+
+<span class="cmt"># Terminar el script con un código específico</span>
+<span class="kw">exit</span> <span class="num">0</span></code></pre></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PAGE 1: Variables -->
+  <div class="page" id="page-variables">
+    <div class="page-header">
+      <div class="breadcrumb">bash-apuntes / <span>01_variables.sh</span></div>
+      <h1 class="page-title">Variables</h1>
+      <p class="page-desc">Almacenar, acceder y manipular datos en Bash con variables locales, de entorno y especiales.</p>
+    </div>
+    <div class="content">
+
+      <div class="section">
+        <h2 class="section-title">Declaración y uso</h2>
+        <p class="section-intro">En Bash, las variables se crean simplemente asignando un valor. No hay espacios alrededor del <code>=</code>. Para acceder al valor, se usa el prefijo <code>$</code>.</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · variables.sh</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <div class="code-body"><pre><code></code><span class="cmt">#!/bin/bash</span>
+
+<span class="cmt"># Asignación — SIN espacios alrededor del =</span>
+<span class="var">nombre</span>=<span class="str">"Ana"</span>
+<span class="var">edad</span>=<span class="num">25</span>
+<span class="var">pi</span>=<span class="num">3.14159</span>
+<span class="var">activo</span>=<span class="kw">true</span>
+
+<span class="cmt"># Acceso con $</span>
+<span class="cmd">echo</span> <span class="str">"Nombre: </span><span class="var">$nombre</span><span class="str">"</span>
+<span class="cmd">echo</span> <span class="str">"Edad: </span><span class="var">$edad</span><span class="str"> años"</span>
+
+<span class="cmt"># Sintaxis con llaves — recomendada para evitar ambigüedades</span>
+<span class="cmd">echo</span> <span class="str">"Bienvenida, </span><span class="var">${nombre}</span><span class="str">!"</span>
+<span class="cmd">echo</span> <span class="str">"</span><span class="var">${nombre}</span><span class="str">_backup"</span>   <span class="cmt"># Sin llaves interpretaría $nombre_backup</span>
+
+<span class="cmt"># Variable de solo lectura (constante)</span>
+<span class="kw">readonly</span> <span class="var">VERSION</span>=<span class="str">"1.0.0"</span>
+<span class="cmd">echo</span> <span class="str">"Versión: </span><span class="var">$VERSION</span><span class="str">"</span>
+
+<span class="cmt"># Eliminar una variable</span>
+<span class="kw">unset</span> <span class="var">activo</span></div>
+        </div>
+
+        <div class="warning"><strong>Atención:</strong> <code>nombre = "Ana"</code> con espacios causará un error — Bash intentará ejecutar <code>nombre</code> como un comando.</div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Variables de entorno</h2>
+        <p class="section-intro">Las variables de entorno son globales al sistema. Por convención se escriben en <strong>MAYÚSCULAS</strong>. Puedes exportar variables locales al entorno con <code>export</code>.</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · entorno.sh</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="cmt"># Variables de entorno predefinidas</span>
+<span class="cmd">echo</span> <span class="str">"Usuario: </span><span class="var">$USER</span><span class="str">"</span>
+<span class="cmd">echo</span> <span class="str">"Home: </span><span class="var">$HOME</span><span class="str">"</span>
+<span class="cmd">echo</span> <span class="str">"Shell: </span><span class="var">$SHELL</span><span class="str">"</span>
+<span class="cmd">echo</span> <span class="str">"PATH: </span><span class="var">$PATH</span><span class="str">"</span>
+<span class="cmd">echo</span> <span class="str">"Hostname: </span><span class="var">$HOSTNAME</span><span class="str">"</span>
+
+<span class="cmt"># Crear y exportar una variable</span>
+<span class="kw">export</span> <span class="var">MI_APP</span>=<span class="str">"mi_aplicacion"</span>
+<span class="kw">export</span> <span class="var">DB_PORT</span>=<span class="num">5432</span>
+
+<span class="cmt"># Ver todas las variables de entorno</span>
+<span class="cmd">env</span>
+<span class="cmd">printenv</span> <span class="var">HOME</span>   <span class="cmt"># Solo una variable específica</span></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Variables especiales</h2>
+
+        <div class="table-wrap">
+          <table>
+            <tr><th>Variable</th><th>Significado</th></tr>
+            <tr><td>$0</td><td>Nombre del script</td></tr>
+            <tr><td>$1, $2 ... $9</td><td>Argumentos posicionales</td></tr>
+            <tr><td>$#</td><td>Número de argumentos</td></tr>
+            <tr><td>$@</td><td>Todos los argumentos (como lista separada)</td></tr>
+            <tr><td>$*</td><td>Todos los argumentos (como una sola cadena)</td></tr>
+            <tr><td>$?</td><td>Código de salida del último comando</td></tr>
+            <tr><td>$$</td><td>PID del script actual</td></tr>
+            <tr><td>$!</td><td>PID del último proceso en segundo plano</td></tr>
+            <tr><td>$_</td><td>Último argumento del comando anterior</td></tr>
+          </table>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · argumentos.sh</span>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt"># Uso: ./argumentos.sh nombre apellido edad</span>
+
+<span class="cmd">echo</span> <span class="str">"Script: </span><span class="var">$0</span><span class="str">"</span>
+<span class="cmd">echo</span> <span class="str">"Primer argumento: </span><span class="var">$1</span><span class="str">"</span>
+<span class="cmd">echo</span> <span class="str">"Segundo argumento: </span><span class="var">$2</span><span class="str">"</span>
+<span class="cmd">echo</span> <span class="str">"Total de argumentos: </span><span class="var">$#</span><span class="str">"</span>
+<span class="cmd">echo</span> <span class="str">"Todos: </span><span class="var">$@</span><span class="str">"</span></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Sustitución de comandos</h2>
+        <p class="section-intro">Puedes guardar la salida de un comando en una variable usando <code>$(comando)</code> o la sintaxis antigua con backticks.</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · sustitucion.sh</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <div class="code-body"><pre><code></code><span class="cmt">#!/bin/bash</span>
+
+<span class="cmt"># Guardar salida de un comando</span>
+<span class="var">fecha</span>=<span class="op">$(</span><span class="cmd">date</span> <span class="flag">+%Y-%m-%d</span><span class="op">)</span>
+<span class="var">usuario</span>=<span class="op">$(</span><span class="cmd">whoami</span><span class="op">)</span>
+<span class="var">num_archivos</span>=<span class="op">$(</span><span class="cmd">ls</span> <span class="flag">-1</span> <span class="op">|</span> <span class="cmd">wc</span> <span class="flag">-l</span><span class="op">)</span>
+<span class="var">directorio</span>=<span class="op">$(</span><span class="cmd">pwd</span><span class="op">)</span>
+
+<span class="cmd">echo</span> <span class="str">"Fecha: </span><span class="var">$fecha</span><span class="str">"</span>
+<span class="cmd">echo</span> <span class="str">"Ejecutando como: </span><span class="var">$usuario</span><span class="str">"</span>
+<span class="cmd">echo</span> <span class="str">"Archivos en </span><span class="var">$directorio</span><span class="str">: </span><span class="var">$num_archivos</span><span class="str">"</span>
+
+<span class="cmt"># Aritmética con $(( ))</span>
+<span class="var">resultado</span>=<span class="op">$((</span><span class="num">10</span> <span class="op">+</span> <span class="num">5</span> <span class="op">*</span> <span class="num">2</span><span class="op">))</span>
+<span class="cmd">echo</span> <span class="str">"10 + 5 * 2 = </span><span class="var">$resultado</span><span class="str">"</span></code></pre></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PAGE 2: Tipos de datos -->
+  <div class="page" id="page-tipos">
+    <div class="page-header">
+      <div class="breadcrumb">bash-apuntes / <span>02_tipos.sh</span></div>
+      <h1 class="page-title">Tipos de datos y operadores</h1>
+      <p class="page-desc">Cadenas de texto, números, aritmética y comparaciones en Bash.</p>
+    </div>
+    <div class="content">
+
+      <div class="section">
+        <h2 class="section-title">Cadenas de texto</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · cadenas.sh</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="var">saludo</span>=<span class="str">"Hola, Mundo"</span>
+
+<span class="cmt"># Longitud de cadena</span>
+<span class="cmd">echo</span> <span class="str">"Longitud: </span><span class="var">${#saludo}</span><span class="str">"</span>            <span class="cmt"># → 11</span>
+
+<span class="cmt"># Subcadena: ${variable:inicio:longitud}</span>
+<span class="cmd">echo</span> <span class="str">"</span><span class="var">${saludo:0:4}</span><span class="str">"</span>                  <span class="cmt"># → Hola</span>
+<span class="cmd">echo</span> <span class="str">"</span><span class="var">${saludo:6}</span><span class="str">"</span>                   <span class="cmt"># → Mundo</span>
+
+<span class="cmt"># Reemplazar primera ocurrencia</span>
+<span class="cmd">echo</span> <span class="str">"</span><span class="var">${saludo/Hola/Adiós}</span><span class="str">"</span>         <span class="cmt"># → Adiós, Mundo</span>
+
+<span class="cmt"># Reemplazar todas las ocurrencias</span>
+<span class="var">texto</span>=<span class="str">"uno dos uno tres uno"</span>
+<span class="cmd">echo</span> <span class="str">"</span><span class="var">${texto//uno/1}</span><span class="str">"</span>              <span class="cmt"># → 1 dos 1 tres 1</span>
+
+<span class="cmt"># Mayúsculas / Minúsculas (Bash 4+)</span>
+<span class="var">nombre</span>=<span class="str">"juan garcia"</span>
+<span class="cmd">echo</span> <span class="str">"</span><span class="var">${nombre^^}</span><span class="str">"</span>                  <span class="cmt"># → JUAN GARCIA</span>
+<span class="cmd">echo</span> <span class="str">"</span><span class="var">${nombre^}</span><span class="str">"</span>                   <span class="cmt"># → Juan garcia (solo 1ª letra)</span>
+<span class="var">TEXTO</span>=<span class="str">"HOLA MUNDO"</span>
+<span class="cmd">echo</span> <span class="str">"</span><span class="var">${TEXTO,,}</span><span class="str">"</span>                  <span class="cmt"># → hola mundo</span>
+
+<span class="cmt"># Concatenar cadenas</span>
+<span class="var">a</span>=<span class="str">"Bash"</span>
+<span class="var">b</span>=<span class="str">"Script"</span>
+<span class="var">c</span>=<span class="str">"</span><span class="var">$a</span> <span class="var">$b</span><span class="str">"</span>
+<span class="cmd">echo</span> <span class="var">$c</span>                            <span class="cmt"># → Bash Script</span></code></pre></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Aritmética</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · aritmetica.sh</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="var">a</span>=<span class="num">10</span>
+<span class="var">b</span>=<span class="num">3</span>
+
+<span class="cmt"># Operadores básicos con $(( ))</span>
+<span class="cmd">echo</span> <span class="op">$((</span><span class="var">a</span> <span class="op">+</span> <span class="var">b</span><span class="op">))</span>   <span class="cmt"># Suma → 13</span>
+<span class="cmd">echo</span> <span class="op">$((</span><span class="var">a</span> <span class="op">-</span> <span class="var">b</span><span class="op">))</span>   <span class="cmt"># Resta → 7</span>
+<span class="cmd">echo</span> <span class="op">$((</span><span class="var">a</span> <span class="op">*</span> <span class="var">b</span><span class="op">))</span>   <span class="cmt"># Multiplicación → 30</span>
+<span class="cmd">echo</span> <span class="op">$((</span><span class="var">a</span> <span class="op">/</span> <span class="var">b</span><span class="op">))</span>   <span class="cmt"># División entera → 3</span>
+<span class="cmd">echo</span> <span class="op">$((</span><span class="var">a</span> <span class="op">%</span> <span class="var">b</span><span class="op">))</span>   <span class="cmt"># Módulo → 1</span>
+<span class="cmd">echo</span> <span class="op">$((</span><span class="var">a</span> <span class="op">**</span> <span class="var">b</span><span class="op">))</span>  <span class="cmt"># Potencia → 1000</span>
+
+<span class="cmt"># Incremento / Decremento</span>
+<span class="op">((</span><span class="var">a</span><span class="op">++))</span>          <span class="cmt"># a = 11</span>
+<span class="op">((</span><span class="var">a</span><span class="op">+=</span><span class="num">5</span><span class="op">))</span>         <span class="cmt"># a = 16</span>
+<span class="op">((</span><span class="var">b</span><span class="op">*=</span><span class="num">2</span><span class="op">))</span>         <span class="cmt"># b = 6</span>
+
+<span class="cmt"># Decimales con bc</span>
+<span class="var">resultado</span>=<span class="op">$(</span><span class="cmd">echo</span> <span class="str">"scale=2; 10/3"</span> <span class="op">|</span> <span class="cmd">bc</span><span class="op">)</span>
+<span class="cmd">echo</span> <span class="str">"10/3 = </span><span class="var">$resultado</span><span class="str">"</span>  <span class="cmt"># → 3.33</span></code></pre></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Operadores de comparación</h2>
+
+        <div class="info-grid">
+          <div class="info-card blue">
+            <div class="info-card-title">Numéricos</div>
+            <p><code>-eq</code> igual · <code>-ne</code> distinto<br><code>-lt</code> menor · <code>-gt</code> mayor<br><code>-le</code> menor o igual · <code>-ge</code> mayor o igual</p>
+          </div>
+          <div class="info-card accent">
+            <div class="info-card-title">Cadenas</div>
+            <p><code>=</code> igual · <code>!=</code> distinto<br><code>-z</code> cadena vacía · <code>-n</code> cadena no vacía<br><code>&lt;</code> anterior alfabéticamente</p>
+          </div>
+          <div class="info-card amber">
+            <div class="info-card-title">Archivos</div>
+            <p><code>-f</code> es fichero · <code>-d</code> es directorio<br><code>-e</code> existe · <code>-r</code> es legible<br><code>-w</code> es escribible · <code>-x</code> es ejecutable</p>
+          </div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · comparaciones.sh</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="var">x</span>=<span class="num">5</span>
+<span class="var">y</span>=<span class="num">10</span>
+
+<span class="cmt"># [ ] — test clásico</span>
+<span class="kw">if</span> <span class="op">[ $x</span> <span class="flag">-lt</span> <span class="op">$y ]</span>; <span class="kw">then</span>
+  <span class="cmd">echo</span> <span class="str">"$x es menor que $y"</span>
+<span class="kw">fi</span>
+
+<span class="cmt"># [[ ]] — test extendido (recomendado en Bash)</span>
+<span class="var">nombre</span>=<span class="str">"Juan"</span>
+<span class="kw">if</span> <span class="op">[[</span> <span class="var">$nombre</span> <span class="op">==</span> <span class="str">"Juan"</span> <span class="op">]]</span>; <span class="kw">then</span>
+  <span class="cmd">echo</span> <span class="str">"¡Hola Juan!"</span>
+<span class="kw">fi</span>
+
+<span class="cmt"># Operadores lógicos: && (y), || (o), ! (no)</span>
+<span class="kw">if</span> <span class="op">[[</span> <span class="var">$x</span> <span class="flag">-gt</span> <span class="num">0</span> <span class="op">&&</span> <span class="var">$y</span> <span class="flag">-lt</span> <span class="num">20</span> <span class="op">]]</span>; <span class="kw">then</span>
+<span class="cmd">echo</span> <span class="str">"Ambas condiciones se cumplen"</span>
+<span class="kw">fi</span></code></pre></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PAGE 3: Entrada de datos -->
+  <div class="page" id="page-entrada">
+    <div class="page-header">
+      <div class="breadcrumb">bash-apuntes / <span>03_entrada.sh</span></div>
+      <h1 class="page-title">Entrada de datos</h1>
+      <p class="page-desc">Leer datos del usuario, archivos y argumentos de la línea de comandos.</p>
+    </div>
+    <div class="content">
+
+      <div class="section">
+        <h2 class="section-title">Comando read</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · entrada.sh</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="cmt"># Lectura básica</span>
+<span class="cmd">echo</span> <span class="flag">-n</span> <span class="str">"¿Cómo te llamas? "</span>
+<span class="kw">read</span> <span class="var">nombre</span>
+<span class="cmd">echo</span> <span class="str">"Hola, </span><span class="var">$nombre</span><span class="str">!"</span>
+
+<span class="cmt"># Prompt integrado con -p</span>
+<span class="kw">read</span> <span class="flag">-p</span> <span class="str">"Tu edad: "</span> <span class="var">edad</span>
+
+<span class="cmt"># Ocultar entrada (contraseñas)</span>
+<span class="kw">read</span> <span class="flag">-s</span> <span class="flag">-p</span> <span class="str">"Contraseña: "</span> <span class="var">pass</span>
+<span class="cmd">echo</span>   <span class="cmt"># Nueva línea después de contraseña oculta</span>
+
+<span class="cmt"># Timeout — espera máximo 5 segundos</span>
+<span class="kw">read</span> <span class="flag">-t</span> <span class="num">5</span> <span class="flag">-p</span> <span class="str">"Responde en 5s: "</span> <span class="var">respuesta</span>
+
+<span class="cmt"># Leer múltiples valores</span>
+<span class="kw">read</span> <span class="flag">-p</span> <span class="str">"Nombre y apellido: "</span> <span class="var">nombre</span> <span class="var">apellido</span>
+<span class="cmd">echo</span> <span class="str">"</span><span class="var">$nombre</span><span class="str"> / </span><span class="var">$apellido</span><span class="str">"</span>
+
+<span class="cmt"># Leer en array</span>
+<span class="kw">read</span> <span class="flag">-a</span> <span class="var">colores</span> <span class="op"><<<</span> <span class="str">"rojo verde azul"</span>
+<span class="cmd">echo</span> <span class="str">"Primer color: </span><span class="var">${colores[0]}</span><span class="str">"</span></code></pre></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Leer archivos línea a línea</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · leer_archivo.sh</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="cmt"># Método 1: while + read</span>
+<span class="kw">while</span> <span class="kw">IFS</span>= <span class="kw">read</span> <span class="flag">-r</span> <span class="var">linea</span>; <span class="kw">do</span>
+  <span class="cmd">echo</span> <span class="str">"→ </span><span class="var">$linea</span><span class="str">"</span>
+<span class="kw">done</span> <span class="op"><</span> <span class="str">"archivo.txt"</span>
+
+<span class="cmt"># Método 2: con cat y pipe</span>
+<span class="cmd">cat</span> <span class="str">archivo.txt</span> <span class="op">|</span> <span class="kw">while</span> <span class="kw">read</span> <span class="var">linea</span>; <span class="kw">do</span>
+  <span class="cmd">echo</span> <span class="str">"</span><span class="var">$linea</span><span class="str">"</span>
+<span class="kw">done</span>
+
+<span class="cmt"># Leer CSV: separar por coma</span>
+<span class="kw">while</span> <span class="kw">IFS</span>=<span class="str">","</span> <span class="kw">read</span> <span class="flag">-r</span> <span class="var">col1</span> <span class="var">col2</span> <span class="var">col3</span>; <span class="kw">do</span>
+  <span class="cmd">echo</span> <span class="str">"</span><span class="var">$col1</span><span class="str"> | </span><span class="var">$col2</span><span class="str"> | </span><span class="var">$col3</span><span class="str">"</span>
+<span class="kw">done</span> <span class="op"><</span> <span class="str">"datos.csv"</span></code></pre></div>
+        </div>
+        <div class="tip"><strong>IFS</strong> (Internal Field Separator) controla cómo Bash divide las palabras. <code>IFS=</code> (vacío) preserva espacios y tabulaciones en cada línea. <code>-r</code> evita que las barras invertidas se interpolen.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PAGE 4: Condicionales -->
+  <div class="page" id="page-condicionales">
+    <div class="page-header">
+      <div class="breadcrumb">bash-apuntes / <span>04_condicionales.sh</span></div>
+      <h1 class="page-title">Condicionales</h1>
+      <p class="page-desc">Estructuras if/elif/else y operadores de comparación para controlar el flujo de ejecución.</p>
+    </div>
+    <div class="content">
+
+      <div class="section">
+        <h2 class="section-title">if / elif / else</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · if_elif.sh</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <div class="code-body"></div><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="kw">read</span> <span class="flag">-p</span> <span class="str">"Introduce una nota (0-10): "</span> <span class="var">nota</span>
+
+<span class="kw">if</span> <span class="op">[[</span> <span class="var">$nota</span> <span class="flag">-ge</span> <span class="num">9</span> <span class="op">]]</span>; <span class="kw">then</span>
+  <span class="cmd">echo</span> <span class="str">"Sobresaliente"</span>
+<span class="kw">elif</span> <span class="op">[[</span> <span class="var">$nota</span> <span class="flag">-ge</span> <span class="num">7</span> <span class="op">]]</span>; <span class="kw">then</span>
+  <span class="cmd">echo</span> <span class="str">"Notable"</span>
+<span class="kw">elif</span> <span class="op">[[</span> <span class="var">$nota</span> <span class="flag">-ge</span> <span class="num">5</span> <span class="op">]]</span>; <span class="kw">then</span>
+  <span class="cmd">echo</span> <span class="str">"Aprobado"</span>
+<span class="kw">else</span>
+  <span class="cmd">echo</span> <span class="str">"Suspenso"</span>
+<span class="kw">fi</span>
+
+<span class="cmt"># Condicional en una línea (forma corta)</span>
+<span class="op">[[</span> <span class="var">$nota</span> <span class="flag">-ge</span> <span class="num">5</span> <span class="op">]]</span> <span class="op">&&</span> <span class="cmd">echo</span> <span class="str">"Pasas"</span> <span class="op">||</span> <span class="cmd">echo</span> <span class="str">"No pasas"</span>
+
+<span class="cmt"># Verificar si un archivo existe</span>
+<span class="var">archivo</span>=<span class="str">"config.txt"</span>
+<span class="kw">if</span> <span class="op">[[</span> <span class="flag">-f</span> <span class="var">$archivo</span> <span class="op">]]</span>; <span class="kw">then</span>
+  <span class="cmd">echo</span> <span class="str">"El archivo existe"</span>
+<span class="kw">else</span>
+  <span class="cmd">echo</span> <span class="str">"El archivo NO existe"</span>
+  <span class="kw">exit</span> <span class="num">1</span>
+<span class="kw">fi</span></code></pre></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Operadores && y ||</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · operadores.sh</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="cmt"># && ejecuta el 2º solo si el 1º tuvo éxito (exit 0)</span>
+<span class="cmd">mkdir</span> <span class="flag">-p</span> <span class="str">nueva_carpeta</span> <span class="op">&&</span> <span class="cmd">echo</span> <span class="str">"Carpeta creada"</span>
+<span class="cmd">cd</span> <span class="str">nueva_carpeta</span> <span class="op">&&</span> <span class="cmd">touch</span> <span class="str">archivo.txt</span>
+
+<span class="cmt"># || ejecuta el 2º solo si el 1º falló</span>
+<span class="cmd">cd</span> <span class="str">/ruta/inexistente</span> <span class="op">||</span> <span class="cmd">echo</span> <span class="str">"Error: ruta no encontrada"</span>
+
+<span class="cmt"># Patrón común: hacer algo O salir con error</span>
+<span class="cmd">apt-get</span> <span class="str">install</span> <span class="str">curl</span> <span class="op">||</span> <span class="op">{</span> <span class="cmd">echo</span> <span class="str">"Error al instalar curl"</span>; <span class="kw">exit</span> <span class="num">1</span>; <span class="op">}</span>
+
+<span class="cmt"># Valor por defecto si una variable está vacía</span>
+<span class="var">nombre</span>=<span class="op">${</span><span class="var">1</span><span class="op">:-</span><span class="str">"Desconocido"</span><span class="op">}</span>   <span class="cmt"># Usa $1, o "Desconocido" si está vacío</span>
+<span class="cmd">echo</span> <span class="str">"Hola, </span><span class="var">$nombre</span><span class="str">"</span></code></pre></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PAGE 5: Bucles -->
+  <div class="page" id="page-bucles">
+    <div class="page-header">
+      <div class="breadcrumb">bash-apuntes / <span>05_bucles.sh</span></div>
+      <h1 class="page-title">Bucles</h1>
+      <p class="page-desc">for, while, until y control de bucles con break y continue.</p>
+    </div>
+    <div class="content">
+
+      <div class="section">
+        <h2 class="section-title">Bucle for</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · for.sh</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="cmt"># Iterar sobre una lista</span>
+<span class="kw">for</span> <span class="var">fruta</span> <span class="kw">in</span> manzana pera naranja uva; <span class="kw">do</span>
+  <span class="cmd">echo</span> <span class="str">"Fruta: </span><span class="var">$fruta</span><span class="str">"</span>
+<span class="kw">done</span>
+
+<span class="cmt"># Iterar con rango de números</span>
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="op">{1..5}</span>; <span class="kw">do</span>
+  <span class="cmd">echo</span> <span class="str">"Número: </span><span class="var">$i</span><span class="str">"</span>
+<span class="kw">done</span>
+
+<span class="cmt"># Rango con paso: {inicio..fin..paso}</span>
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="op">{0..20..5}</span>; <span class="kw">do</span>
+  <span class="cmd">echo</span> <span class="flag">-n</span> <span class="str">"</span><span class="var">$i</span><span class="str"> "</span>     <span class="cmt"># → 0 5 10 15 20</span>
+<span class="kw">done</span>
+
+<span class="cmt"># Estilo C</span>
+<span class="kw">for</span> <span class="op">((</span><span class="var">i</span>=<span class="num">0</span>; <span class="var">i</span><span class="op"><</span><span class="num">5</span>; <span class="var">i</span><span class="op">++))</span>; <span class="kw">do</span>
+  <span class="cmd">echo</span> <span class="str">"i = </span><span class="var">$i</span><span class="str">"</span>
+<span class="kw">done</span>
+
+<span class="cmt"># Iterar sobre archivos</span>
+<span class="kw">for</span> <span class="var">archivo</span> <span class="kw">in</span> <span class="op">*.txt</span>; <span class="kw">do</span>
+  <span class="cmd">echo</span> <span class="str">"Procesando: </span><span class="var">$archivo</span><span class="str">"</span>
+<span class="kw">done</span>
+
+<span class="cmt"># Iterar sobre la salida de un comando</span>
+<span class="kw">for</span> <span class="var">usuario</span> <span class="kw">in</span> <span class="op">$(</span><span class="cmd">cut</span> <span class="flag">-d:</span> <span class="flag">-f1</span> <span class="str">/etc/passwd</span><span class="op">)</span>; <span class="kw">do</span>
+  <span class="cmd">echo</span> <span class="var">$usuario</span>
+<span class="kw">done</span></code></pre></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Bucles while y until</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · while_until.sh</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="cmt"># while — se ejecuta MIENTRAS la condición sea verdadera</span>
+<span class="var">contador</span>=<span class="num">1</span>
+<span class="kw">while</span> <span class="op">[[</span> <span class="var">$contador</span> <span class="flag">-le</span> <span class="num">5</span> <span class="op">]]</span>; <span class="kw">do</span>
+  <span class="cmd">echo</span> <span class="str">"Vuelta </span><span class="var">$contador</span><span class="str">"</span>
+  <span class="op">((</span><span class="var">contador</span><span class="op">++))</span>
+<span class="kw">done</span>
+
+<span class="cmt"># until — se ejecuta HASTA que la condición sea verdadera</span>
+<span class="var">n</span>=<span class="num">1</span>
+<span class="kw">until</span> <span class="op">[[</span> <span class="var">$n</span> <span class="flag">-gt</span> <span class="num">5</span> <span class="op">]]</span>; <span class="kw">do</span>
+  <span class="cmd">echo</span> <span class="str">"n = </span><span class="var">$n</span><span class="str">"</span>
+  <span class="op">((</span><span class="var">n</span><span class="op">++))</span>
+<span class="kw">done</span>
+
+<span class="cmt"># Bucle infinito con break</span>
+<span class="kw">while</span> <span class="kw">true</span>; <span class="kw">do</span>
+  <span class="kw">read</span> <span class="flag">-p</span> <span class="str">"¿Continuar? (s/n): "</span> <span class="var">resp</span>
+  <span class="kw">if</span> <span class="op">[[</span> <span class="var">$resp</span> <span class="op">==</span> <span class="str">"n"</span> <span class="op">]]</span>; <span class="kw">then</span>
+    <span class="kw">break</span>
+  <span class="kw">fi</span>
+  <span class="cmd">echo</span> <span class="str">"Continuando..."</span>
+<span class="kw">done</span>
+
+<span class="cmt"># continue — salta a la siguiente iteración</span>
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="op">{1..10}</span>; <span class="kw">do</span>
+  <span class="op">[[</span> <span class="op">$((</span><span class="var">i</span> <span class="op">%</span> <span class="num">2</span><span class="op">))</span> <span class="flag">-eq</span> <span class="num">0</span> <span class="op">]]</span> <span class="op">&&</span> <span class="kw">continue</span>   <span class="cmt"># saltar pares</span>
+  <span class="cmd">echo</span> <span class="flag">-n</span> <span class="str">"</span><span class="var">$i</span><span class="str"> "</span>   <span class="cmt"># → 1 3 5 7 9</span>
+<span class="kw">done</span></code></pre></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PAGE 6: Case -->
+  <div class="page" id="page-case">
+    <div class="page-header">
+      <div class="breadcrumb">bash-apuntes / <span>06_case.sh</span></div>
+      <h1 class="page-title">Case y Select</h1>
+      <p class="page-desc">Múltiples opciones con case y menús interactivos con select.</p>
+    </div>
+    <div class="content">
+      <div class="section">
+        <h2 class="section-title">Estructura case</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · case.sh</span>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="kw">read</span> <span class="flag">-p</span> <span class="str">"Introduce el día (lun, mar, ...): "</span> <span class="var">dia</span>
+
+<span class="kw">case</span> <span class="var">$dia</span> <span class="kw">in</span>
+  lun<span class="op">|</span>mar<span class="op">|</span>mie<span class="op">|</span>jue<span class="op">|</span>vie<span class="op">)</span>
+    <span class="cmd">echo</span> <span class="str">"Día laborable"</span>
+    <span class="op">;;</span>
+  sab<span class="op">|</span>dom<span class="op">)</span>
+    <span class="cmd">echo</span> <span class="str">"Fin de semana"</span>
+    <span class="op">;;</span>
+  <span class="op">*)</span>
+    <span class="cmd">echo</span> <span class="str">"Día no reconocido"</span>
+    <span class="kw">exit</span> <span class="num">1</span>
+    <span class="op">;;</span>
+<span class="kw">esac</span>
+
+<span class="cmt"># Con comodines</span>
+<span class="kw">read</span> <span class="flag">-p</span> <span class="str">"Nombre del archivo: "</span> <span class="var">archivo</span>
+<span class="kw">case</span> <span class="var">$archivo</span> <span class="kw">in</span>
+  <span class="op">*.txt)</span>   <span class="cmd">echo</span> <span class="str">"Texto plano"</span>  <span class="op">;;</span>
+  <span class="op">*.sh)</span>    <span class="cmd">echo</span> <span class="str">"Script Bash"</span>  <span class="op">;;</span>
+  <span class="op">*.py)</span>    <span class="cmd">echo</span> <span class="str">"Python"</span>       <span class="op">;;</span>
+  <span class="op">*.jpg|*.png|*.gif)</span>
+           <span class="cmd">echo</span> <span class="str">"Imagen"</span>       <span class="op">;;</span>
+  <span class="op">*)</span>       <span class="cmd">echo</span> <span class="str">"Tipo desconocido"</span> <span class="op">;;</span>
+<span class="kw">esac</span></code></pre></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Menú con select</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · menu.sh</span>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="var">PS3</span>=<span class="str">"Elige una opción: "</span>   <span class="cmt"># Prompt del menú select</span>
+
+<span class="kw">select</span> <span class="var">opcion</span> <span class="kw">in</span> <span class="str">"Ver fecha"</span> <span class="str">"Ver usuarios"</span> <span class="str">"Ver disco"</span> <span class="str">"Salir"</span>; <span class="kw">do</span>
+  <span class="kw">case</span> <span class="var">$opcion</span> <span class="kw">in</span>
+    <span class="str">"Ver fecha"</span><span class="op">)</span>
+      <span class="cmd">date</span>
+      <span class="op">;;</span>
+    <span class="str">"Ver usuarios"</span><span class="op">)</span>
+      <span class="cmd">who</span>
+      <span class="op">;;</span>
+    <span class="str">"Ver disco"</span><span class="op">)</span>
+      <span class="cmd">df</span> <span class="flag">-h</span>
+      <span class="op">;;</span>
+    <span class="str">"Salir"</span><span class="op">)</span>
+      <span class="cmd">echo</span> <span class="str">"¡Hasta luego!"</span>
+      <span class="kw">break</span>
+      <span class="op">;;</span>
+    <span class="op">*)</span>
+      <span class="cmd">echo</span> <span class="str">"Opción inválida"</span>
+      <span class="op">;;</span>
+  <span class="kw">esac</span>
+<span class="kw">done</span></code></pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 7: Funciones -->
+  <div class="page" id="page-funciones">
+    <div class="page-header">
+      <div class="breadcrumb">bash-apuntes / <span>07_funciones.sh</span></div>
+      <h1 class="page-title">Funciones</h1>
+      <p class="page-desc">Crear funciones reutilizables, pasar parámetros y devolver valores.</p>
+    </div>
+    <div class="content">
+      <div class="section">
+        <h2 class="section-title">Definición y llamada</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · funciones.sh</span>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="cmt"># Dos formas de definir funciones</span>
+<span class="kw">function</span> <span class="cmd">saludar</span> <span class="op">{</span>
+  <span class="cmd">echo</span> <span class="str">"¡Hola desde la función!"</span>
+<span class="op">}</span>
+
+<span class="cmd">despedir</span><span class="op">()</span> <span class="op">{</span>
+  <span class="cmd">echo</span> <span class="str">"¡Hasta pronto!"</span>
+<span class="op">}</span>
+
+<span class="cmt"># Llamar la función (sin paréntesis)</span>
+<span class="cmd">saludar</span>
+<span class="cmd">despedir</span>
+
+<span class="cmt"># Función con parámetros ($1, $2...)</span>
+<span class="kw">function</span> <span class="cmd">sumar</span> <span class="op">{</span>
+  <span class="kw">local</span> <span class="var">resultado</span>=<span class="op">$((</span><span class="var">$1</span> <span class="op">+</span> <span class="var">$2</span><span class="op">))</span>
+  <span class="cmd">echo</span> <span class="str">"</span><span class="var">$resultado</span><span class="str">"</span>   <span class="cmt"># "devolver" el valor con echo</span>
+<span class="op">}</span>
+
+<span class="var">total</span>=<span class="op">$(</span><span class="cmd">sumar</span> <span class="num">4</span> <span class="num">7</span><span class="op">)</span>
+<span class="cmd">echo</span> <span class="str">"4 + 7 = </span><span class="var">$total</span><span class="str">"</span>   <span class="cmt"># → 11</span>
+
+<span class="cmt"># Variables locales con local</span>
+<span class="kw">function</span> <span class="cmd">test_scope</span> <span class="op">{</span>
+  <span class="kw">local</span> <span class="var">interna</span>=<span class="str">"solo dentro"</span>
+  <span class="var">global</span>=<span class="str">"visible fuera"</span>
+<span class="op">}</span>
+
+<span class="cmd">test_scope</span>
+<span class="cmd">echo</span> <span class="var">$global</span>     <span class="cmt"># → visible fuera</span>
+<span class="cmd">echo</span> <span class="var">$interna</span>    <span class="cmt"># → (vacío, no existe fuera)</span>
+
+<span class="cmt"># Código de retorno con return</span>
+<span class="kw">function</span> <span class="cmd">es_par</span> <span class="op">{</span>
+  <span class="op">[[</span> <span class="op">$(($1 % 2))</span> <span class="flag">-eq</span> <span class="num">0</span> <span class="op">]]</span> <span class="op">&&</span> <span class="kw">return</span> <span class="num">0</span> <span class="op">||</span> <span class="kw">return</span> <span class="num">1</span>
+<span class="op">}</span>
+
+<span class="cmd">es_par</span> <span class="num">4</span> <span class="op">&&</span> <span class="cmd">echo</span> <span class="str">"4 es par"</span></code></pre></div>
+        </div>
+        <div class="tip"><strong>Local vs Global:</strong> Usa siempre <code>local</code> para las variables dentro de funciones. Sin <code>local</code>, las variables son globales y pueden causar efectos secundarios inesperados.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 8: Arrays -->
+  <div class="page" id="page-arrays">
+    <div class="page-header">
+      <div class="breadcrumb">bash-apuntes / <span>08_arrays.sh</span></div>
+      <h1 class="page-title">Arrays</h1>
+      <p class="page-desc">Arrays indexados y asociativos para almacenar colecciones de datos.</p>
+    </div>
+    <div class="content">
+      <div class="section">
+        <h2 class="section-title">Arrays indexados</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · arrays.sh</span>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="cmt"># Declarar array</span>
+<span class="var">frutas</span>=<span class="op">(</span><span class="str">"manzana"</span> <span class="str">"pera"</span> <span class="str">"naranja"</span> <span class="str">"uva"</span><span class="op">)</span>
+
+<span class="cmt"># Acceder por índice (empieza en 0)</span>
+<span class="cmd">echo</span> <span class="var">${frutas[0]}</span>      <span class="cmt"># → manzana</span>
+<span class="cmd">echo</span> <span class="var">${frutas[2]}</span>      <span class="cmt"># → naranja</span>
+<span class="cmd">echo</span> <span class="var">${frutas[-1]}</span>     <span class="cmt"># → uva (último)</span>
+
+<span class="cmt"># Todos los elementos</span>
+<span class="cmd">echo</span> <span class="var">${frutas[@]}</span>      <span class="cmt"># → manzana pera naranja uva</span>
+
+<span class="cmt"># Número de elementos</span>
+<span class="cmd">echo</span> <span class="var">${#frutas[@]}</span>     <span class="cmt"># → 4</span>
+
+<span class="cmt"># Añadir elemento</span>
+<span class="var">frutas</span><span class="op">+=(</span><span class="str">"mango"</span><span class="op">)</span>
+
+<span class="cmt"># Modificar elemento</span>
+<span class="var">frutas[1]</span>=<span class="str">"kiwi"</span>
+
+<span class="cmt"># Eliminar elemento</span>
+<span class="kw">unset</span> <span class="var">frutas[3]</span>
+
+<span class="cmt"># Iterar sobre el array</span>
+<span class="kw">for</span> <span class="var">fruta</span> <span class="kw">in</span> <span class="var">${frutas[@]}</span>; <span class="kw">do</span>
+  <span class="cmd">echo</span> <span class="str">"- </span><span class="var">$fruta</span><span class="str">"</span>
+<span class="kw">done</span>
+
+<span class="cmt"># Iterar con índice</span>
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="var">${!frutas[@]}</span>; <span class="kw">do</span>
+  <span class="cmd">echo</span> <span class="str">"[</span><span class="var">$i</span><span class="str">] </span><span class="var">${frutas[$i]}</span><span class="str">"</span>
+<span class="kw">done</span></code></pre></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Arrays asociativos (diccionarios)</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · asociativos.sh</span>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="cmt"># Requiere Bash 4+. Declarar con -A</span>
+<span class="kw">declare</span> <span class="flag">-A</span> <span class="var">capitales</span>
+
+<span class="cmt"># Asignar valores</span>
+<span class="var">capitales[España]</span>=<span class="str">"Madrid"</span>
+<span class="var">capitales[Francia]</span>=<span class="str">"París"</span>
+<span class="var">capitales[Alemania]</span>=<span class="str">"Berlín"</span>
+
+<span class="cmt"># O en una línea</span>
+<span class="kw">declare</span> <span class="flag">-A</span> <span class="var">colores</span>=<span class="op">([</span><span class="str">rojo</span><span class="op">]=</span><span class="str">"#FF0000"</span> <span class="op">[</span><span class="str">verde</span><span class="op">]=</span><span class="str">"#00FF00"</span><span class="op">)</span>
+
+<span class="cmt"># Acceso</span>
+<span class="cmd">echo</span> <span class="var">${capitales[España]}</span>    <span class="cmt"># → Madrid</span>
+
+<span class="cmt"># Todas las claves</span>
+<span class="cmd">echo</span> <span class="var">${!capitales[@]}</span>
+
+<span class="cmt"># Todos los valores</span>
+<span class="cmd">echo</span> <span class="var">${capitales[@]}</span>
+
+<span class="cmt"># Iterar clave-valor</span>
+<span class="kw">for</span> <span class="var">pais</span> <span class="kw">in</span> <span class="var">${!capitales[@]}</span>; <span class="kw">do</span>
+  <span class="cmd">echo</span> <span class="str">"</span><span class="var">$pais</span><span class="str"> → </span><span class="var">${capitales[$pais]}</span><span class="str">"</span>
+<span class="kw">done</span></code></pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 9: Archivos -->
+  <div class="page" id="page-archivos">
+    <div class="page-header">
+      <div class="breadcrumb">bash-apuntes / <span>09_archivos.sh</span></div>
+      <h1 class="page-title">Manejo de archivos</h1>
+      <p class="page-desc">Leer, escribir, redirigir y procesar archivos desde scripts Bash.</p>
+    </div>
+    <div class="content">
+      <div class="section">
+        <h2 class="section-title">Redirecciones</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · redireccion.sh</span>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="cmt"># > sobrescribe, >> añade al final</span>
+<span class="cmd">echo</span> <span class="str">"Primera línea"</span> <span class="op">></span> <span class="str">archivo.txt</span>
+<span class="cmd">echo</span> <span class="str">"Segunda línea"</span> <span class="op">>></span> <span class="str">archivo.txt</span>
+
+<span class="cmt"># Redirigir stderr (error) a archivo</span>
+<span class="cmd">ls</span> <span class="str">/no-existe</span> <span class="num">2</span><span class="op">></span> <span class="str">errores.log</span>
+
+<span class="cmt"># Redirigir stdout y stderr juntos</span>
+<span class="cmd">comando</span> <span class="op">></span> <span class="str">salida.log</span> <span class="num">2</span><span class="op">>&</span><span class="num">1</span>
+<span class="cmt"># Forma moderna:</span>
+<span class="cmd">comando</span> <span class="op">&></span> <span class="str">salida.log</span>
+
+<span class="cmt"># Descartar salida (enviar a /dev/null)</span>
+<span class="cmd">comando</span> <span class="op">></span> <span class="str">/dev/null</span> <span class="num">2</span><span class="op">>&</span><span class="num">1</span>
+
+<span class="cmt"># Entrada desde archivo</span>
+<span class="cmd">sort</span> <span class="op"><</span> <span class="str">lista.txt</span>
+
+<span class="cmt"># Here Document — texto multilinea</span>
+<span class="cmd">cat</span> <span class="op"><<</span> <span class="str">EOF</span> <span class="op">></span> <span class="str">config.txt</span>
+<span class="str">usuario=admin</span>
+<span class="str">puerto=8080</span>
+<span class="str">debug=false</span>
+<span class="str">EOF</span>
+
+<span class="cmt"># Here String — pasar cadena como entrada</span>
+<span class="cmd">grep</span> <span class="str">"error"</span> <span class="op"><<<</span> <span class="str">"esto es un error de prueba"</span></code></pre></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Pipes y procesamiento</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · pipes.sh</span>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="cmt"># Pipe: salida de uno → entrada del siguiente</span>
+<span class="cmd">cat</span> <span class="str">archivo.txt</span> <span class="op">|</span> <span class="cmd">grep</span> <span class="str">"error"</span> <span class="op">|</span> <span class="cmd">wc</span> <span class="flag">-l</span>
+
+<span class="cmt"># Contar palabras únicas ordenadas</span>
+<span class="cmd">cat</span> <span class="str">texto.txt</span> <span class="op">|</span> <span class="cmd">tr</span> <span class="str">' '</span> <span class="str">'\n'</span> <span class="op">|</span> <span class="cmd">sort</span> <span class="op">|</span> <span class="cmd">uniq</span> <span class="flag">-c</span> <span class="op">|</span> <span class="cmd">sort</span> <span class="flag">-rn</span>
+
+<span class="cmt"># Buscar proceso por nombre</span>
+<span class="cmd">ps</span> <span class="flag">aux</span> <span class="op">|</span> <span class="cmd">grep</span> <span class="flag">-v</span> <span class="str">"grep"</span> <span class="op">|</span> <span class="cmd">grep</span> <span class="str">"nginx"</span>
+
+<span class="cmt"># Extraer columnas con awk</span>
+<span class="cmd">df</span> <span class="flag">-h</span> <span class="op">|</span> <span class="cmd">awk</span> <span class="str">'NR>1 {print $1, $5}'</span>
+
+<span class="cmt"># Reemplazar texto con sed</span>
+<span class="cmd">sed</span> <span class="flag">-i</span> <span class="str">'s/antiguo/nuevo/g'</span> <span class="str">archivo.txt</span>
+
+<span class="cmt"># Tee: escribir a archivo Y seguir el pipe</span>
+<span class="cmd">ls</span> <span class="flag">-la</span> <span class="op">|</span> <span class="cmd">tee</span> <span class="str">listado.txt</span> <span class="op">|</span> <span class="cmd">grep</span> <span class="str">".sh"</span></code></pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 10: Procesos -->
+  <div class="page" id="page-procesos">
+    <div class="page-header">
+      <div class="breadcrumb">bash-apuntes / <span>10_procesos.sh</span></div>
+      <h1 class="page-title">Procesos y señales</h1>
+      <p class="page-desc">Gestión de procesos, ejecución en segundo plano y captura de señales del sistema.</p>
+    </div>
+    <div class="content">
+      <div class="section">
+        <h2 class="section-title">Procesos en segundo plano</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · procesos.sh</span>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="cmt"># Ejecutar en segundo plano con &</span>
+<span class="cmd">sleep</span> <span class="num">10</span> <span class="op">&</span>
+<span class="var">PID_SLEEP</span>=<span class="var">$!</span>
+<span class="cmd">echo</span> <span class="str">"Sleep PID: </span><span class="var">$PID_SLEEP</span><span class="str">"</span>
+
+<span class="cmt"># Esperar a que un proceso termine</span>
+<span class="cmd">wait</span> <span class="var">$PID_SLEEP</span>
+<span class="cmd">echo</span> <span class="str">"Sleep terminó"</span>
+
+<span class="cmt"># Lanzar múltiples procesos y esperar todos</span>
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="op">{1..3}</span>; <span class="kw">do</span>
+  <span class="cmd">sleep</span> <span class="var">$i</span> <span class="op">&</span>
+<span class="kw">done</span>
+<span class="cmd">wait</span>   <span class="cmt"># Espera todos los jobs en segundo plano</span>
+<span class="cmd">echo</span> <span class="str">"Todos terminaron"</span>
+
+<span class="cmt"># Matar un proceso</span>
+<span class="cmd">kill</span> <span class="var">$PID_SLEEP</span>       <span class="cmt"># SIGTERM (cortés)</span>
+<span class="cmd">kill</span> <span class="flag">-9</span> <span class="var">$PID_SLEEP</span>    <span class="cmt"># SIGKILL (forzado)</span></code></pre></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Captura de señales con trap</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · trap.sh</span>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="cmt"># Función de limpieza</span>
+<span class="kw">function</span> <span class="cmd">cleanup</span> <span class="op">{</span>
+  <span class="cmd">echo</span> <span class="str">""</span>
+  <span class="cmd">echo</span> <span class="str">"Script interrumpido. Limpiando..."</span>
+  <span class="cmd">rm</span> <span class="flag">-f</span> <span class="str">/tmp/mi_script_temp_*</span>
+  <span class="kw">exit</span> <span class="num">1</span>
+<span class="op">}</span>
+
+<span class="cmt"># Capturar Ctrl+C (SIGINT) y SIGTERM</span>
+<span class="kw">trap</span> <span class="cmd">cleanup</span> <span class="str">INT TERM</span>
+
+<span class="cmt"># Ejecutar al salir (siempre, haya error o no)</span>
+<span class="kw">trap</span> <span class="str">'echo "Script finalizado"'</span> <span class="str">EXIT</span>
+
+<span class="cmt"># Capturar errores con ERR</span>
+<span class="kw">trap</span> <span class="str">'echo "Error en línea $LINENO"'</span> <span class="str">ERR</span>
+
+<span class="cmd">echo</span> <span class="str">"Ejecutando tarea larga..."</span>
+<span class="cmd">sleep</span> <span class="num">30</span>    <span class="cmt"># Ctrl+C aquí llamará cleanup()</span></code></pre></div>
+        </div>
+        <div class="tip"><strong>Buena práctica:</strong> Siempre usa <code>trap cleanup EXIT</code> en scripts que crean archivos temporales. Así se limpian aunque el script falle o sea interrumpido.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 11: Regex -->
+  <div class="page" id="page-regex">
+    <div class="page-header">
+      <div class="breadcrumb">bash-apuntes / <span>11_regex.sh</span></div>
+      <h1 class="page-title">Expresiones regulares</h1>
+      <p class="page-desc">Búsqueda y manipulación de texto con grep, sed y awk.</p>
+    </div>
+    <div class="content">
+      <div class="section">
+        <h2 class="section-title">grep — búsqueda de patrones</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · grep.sh</span>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="cmt"># Búsqueda básica</span>
+<span class="cmd">grep</span> <span class="str">"error"</span> <span class="str">app.log</span>            <span class="cmt"># líneas con "error"</span>
+<span class="cmd">grep</span> <span class="flag">-i</span> <span class="str">"error"</span> <span class="str">app.log</span>         <span class="cmt"># sin distinción mayúsc.</span>
+<span class="cmd">grep</span> <span class="flag">-n</span> <span class="str">"error"</span> <span class="str">app.log</span>         <span class="cmt"># con número de línea</span>
+<span class="cmd">grep</span> <span class="flag">-v</span> <span class="str">"error"</span> <span class="str">app.log</span>         <span class="cmt"># líneas SIN "error"</span>
+<span class="cmd">grep</span> <span class="flag">-c</span> <span class="str">"error"</span> <span class="str">app.log</span>         <span class="cmt"># contar coincidencias</span>
+<span class="cmd">grep</span> <span class="flag">-r</span> <span class="str">"TODO"</span> <span class="str">./src/</span>           <span class="cmt"># recursivo en carpeta</span>
+
+<span class="cmt"># Expresiones regulares extendidas con -E o egrep</span>
+<span class="cmd">grep</span> <span class="flag">-E</span> <span class="str">"error|warning"</span> <span class="str">log.txt</span>  <span class="cmt"># error O warning</span>
+<span class="cmd">grep</span> <span class="flag">-E</span> <span class="str">"^[0-9]{4}-"</span> <span class="str">log.txt</span>     <span class="cmt"># líneas que empiezan con 4 dígitos y guión</span>
+<span class="cmd">grep</span> <span class="flag">-E</span> <span class="str">"[a-z]+@[a-z]+\.[a-z]+"</span> <span class="str">emails.txt</span>  <span class="cmt"># emails</span>
+
+<span class="cmt"># En Bash, [[ ]] soporta regex con =~</span>
+<span class="var">email</span>=<span class="str">"usuario@ejemplo.com"</span>
+<span class="kw">if</span> <span class="op">[[</span> <span class="var">$email</span> <span class="op">=~</span> <span class="str">^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z]+$</span> <span class="op">]]</span>; <span class="kw">then</span>
+  <span class="cmd">echo</span> <span class="str">"Email válido"</span>
+<span class="kw">fi</span></code></pre></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">sed — edición de streams</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · sed.sh</span>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="cmt"># Sustituir primera ocurrencia por línea</span>
+<span class="cmd">sed</span> <span class="str">'s/foo/bar/'</span> <span class="str">archivo.txt</span>
+
+<span class="cmt"># Sustituir todas las ocurrencias (g = global)</span>
+<span class="cmd">sed</span> <span class="str">'s/foo/bar/g'</span> <span class="str">archivo.txt</span>
+
+<span class="cmt"># Edición in-place (modifica el archivo)</span>
+<span class="cmd">sed</span> <span class="flag">-i</span> <span class="str">'s/VERSION=.*/VERSION=2.0/g'</span> <span class="str">config.env</span>
+
+<span class="cmt"># Eliminar líneas que coinciden</span>
+<span class="cmd">sed</span> <span class="str">'/^#/d'</span> <span class="str">config.txt</span>       <span class="cmt"># borrar comentarios</span>
+<span class="cmd">sed</span> <span class="str">'/^$/d'</span> <span class="str">archivo.txt</span>      <span class="cmt"># borrar líneas vacías</span>
+
+<span class="cmt"># Mostrar solo líneas 5 a 10</span>
+<span class="cmd">sed</span> <span class="flag">-n</span> <span class="str">'5,10p'</span> <span class="str">archivo.txt</span>
+
+<span class="cmt"># Insertar línea antes/después</span>
+<span class="cmd">sed</span> <span class="str">'3i\Nueva línea antes de 3'</span> <span class="str">archivo.txt</span>
+<span class="cmd">sed</span> <span class="str">'3a\Nueva línea después de 3'</span> <span class="str">archivo.txt</span></code></pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 12: Debug -->
+  <div class="page" id="page-debug">
+    <div class="page-header">
+      <div class="breadcrumb">bash-apuntes / <span>12_depuracion.sh</span></div>
+      <h1 class="page-title">Depuración</h1>
+      <p class="page-desc">Técnicas y herramientas para encontrar y corregir errores en scripts Bash.</p>
+    </div>
+    <div class="content">
+      <div class="section">
+        <h2 class="section-title">Opciones de depuración</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · debug.sh</span>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="cmt"># set -x: traza de ejecución (muestra cada comando)</span>
+<span class="kw">set</span> <span class="flag">-x</span>
+
+<span class="cmt"># set -e: salir si algún comando falla</span>
+<span class="kw">set</span> <span class="flag">-e</span>
+
+<span class="cmt"># set -u: error si se usa variable no definida</span>
+<span class="kw">set</span> <span class="flag">-u</span>
+
+<span class="cmt"># set -o pipefail: pipeline falla si algún paso falla</span>
+<span class="kw">set</span> <span class="flag">-o</span> <span class="str">pipefail</span>
+
+<span class="cmt"># Combinación recomendada para producción:</span>
+<span class="kw">set</span> <span class="flag">-euo</span> <span class="str">pipefail</span>
+
+<span class="cmt"># Activar/desactivar traza en sección concreta</span>
+<span class="kw">set</span> <span class="flag">-x</span>
+<span class="var">resultado</span>=<span class="op">$((</span><span class="num">2</span> <span class="op">+</span> <span class="num">2</span><span class="op">))</span>
+<span class="kw">set</span> <span class="flag">+x</span>   <span class="cmt"># desactivar traza</span>
+
+<span class="cmt"># Ejecutar desde terminal con debug sin modificar el script</span>
+<span class="cmt"># bash -x mi_script.sh</span>
+<span class="cmt"># bash -n mi_script.sh  ← solo verifica sintaxis, no ejecuta</span></code></pre></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">Buenas prácticas</h2>
+        <div class="info-grid">
+          <div class="info-card accent">
+            <div class="info-card-title">Siempre usar</div>
+            <p><code>set -euo pipefail</code> al inicio de todo script de producción. Evita errores silenciosos.</p>
+          </div>
+          <div class="info-card blue">
+            <div class="info-card-title">Variables entre comillas</div>
+            <p>Siempre entrecomilla variables: <code>"$var"</code> en lugar de <code>$var</code>. Previene problemas con espacios.</p>
+          </div>
+          <div class="info-card amber">
+            <div class="info-card-title">Validar argumentos</div>
+            <p>Comprueba que los argumentos necesarios existen y son del tipo correcto antes de usarlos.</p>
+          </div>
+          <div class="info-card purple">
+            <div class="info-card-title">ShellCheck</div>
+            <p>Usa <code>shellcheck script.sh</code> — analizador estático gratuito que detecta errores comunes.</p>
+          </div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · plantilla_robusta.sh</span>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/usr/bin/env bash</span>
+<span class="cmt"># Descripción: Plantilla robusta para scripts de producción</span>
+<span class="cmt"># Uso: ./script.sh [opciones] argumento</span>
+
+<span class="kw">set</span> <span class="flag">-euo pipefail</span>
+<span class="var">IFS</span>=<span class="var">$'\n\t'</span>
+
+<span class="cmt"># Variables globales</span>
+<span class="kw">readonly</span> <span class="var">SCRIPT_DIR</span>=<span class="op">$(</span><span class="cmd">cd</span> <span class="str">"</span><span class="op">$(</span><span class="cmd">dirname</span> <span class="str">"${BASH_SOURCE[0]}"</span><span class="op">)</span><span class="str">"</span> <span class="op">&&</span> <span class="cmd">pwd</span><span class="op">)</span>
+<span class="kw">readonly</span> <span class="var">SCRIPT_NAME</span>=<span class="op">$(</span><span class="cmd">basename</span> <span class="str">"$0"</span><span class="op">)</span>
+
+<span class="kw">function</span> <span class="cmd">log</span> <span class="op">{</span>
+  <span class="cmd">echo</span> <span class="str">"[</span><span class="op">$(</span><span class="cmd">date</span> <span class="str">'%Y-%m-%d %H:%M:%S'</span><span class="op">)</span><span class="str">] </span><span class="var">$*</span><span class="str">"</span> <span class="op">>&</span><span class="num">2</span>
+<span class="op">}</span>
+
+<span class="kw">function</span> <span class="cmd">error</span> <span class="op">{</span>
+  <span class="cmd">log</span> <span class="str">"ERROR: </span><span class="var">$*</span><span class="str">"</span>
+  <span class="kw">exit</span> <span class="num">1</span>
+<span class="op">}</span>
+
+<span class="kw">function</span> <span class="cmd">main</span> <span class="op">{</span>
+  <span class="op">[[</span> <span class="var">$#</span> <span class="flag">-lt</span> <span class="num">1</span> <span class="op">]]</span> <span class="op">&&</span> <span class="cmd">error</span> <span class="str">"Uso: </span><span class="var">$SCRIPT_NAME</span><span class="str"> <argumento>"</span>
+  <span class="cmd">log</span> <span class="str">"Iniciando con argumento: </span><span class="var">$1</span><span class="str">"</span>
+  <span class="cmt"># ... tu código aquí</span>
+<span class="op">}</span>
+
+<span class="cmd">main</span> <span class="str">"</span><span class="var">$@</span><span class="str">"</span></code></pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+async function copyCode(btn) {
+  const code = btn.parentElement.nextElementSibling.innerText;
+  try {
+    await navigator.clipboard.writeText(code);
+    btn.innerText = "¡Copiado!";
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.innerText = "Copiar";
+      btn.classList.remove('copied');
+    }, 2000);
+  } catch (err) {
+    console.error('Error al copiar: ', err);
+  }
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  document.querySelector('.main').scrollTo(0, 0);
+}
+</script>
+
+</body>
+</html>
