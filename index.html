@@ -510,6 +510,22 @@
       <span class="nav-num">12</span> Depuración
     </button>
   </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Ejercicios</div>
+    <button class="nav-item" onclick="showPage('capicua')">
+      <span class="nav-num">13</span> Capicúa
+    </button>
+    <button class="nav-item" onclick="showPage('par_impar')">
+      <span class="nav-num">14</span> Par o Impar
+    </button>
+    <button class="nav-item" onclick="showPage('primo')">
+      <span class="nav-num">15</span> Número Primo
+    </button>
+    <button class="nav-item" onclick="showPage('ordenacion')">
+      <span class="nav-num">16</span> Ordenación Vectores
+    </button>
+  </div>
 </nav>
 
 <!-- Main area -->
@@ -1794,6 +1810,199 @@
 <span class="op">}</span>
 
 <span class="cmd">main</span> <span class="str">"</span><span class="var">$@</span><span class="str">"</span></code></pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- PAGE 13: Capicúa -->
+  <div class="page" id="page-capicua">
+    <div class="page-header">
+      <div class="breadcrumb">bash-apuntes / <span>ejercicios / capicua.sh</span></div>
+      <h1 class="page-title">Capicúa</h1>
+      <p class="page-desc">Ejercicio resuelto: Comprobar si un número o cadena es capicúa (palíndromo).</p>
+    </div>
+    <div class="content">
+      <div class="section">
+        <h2 class="section-title">Enunciado</h2>
+        <div class="exercise">
+          <div class="exercise-title">Ejercicio 1</div>
+          <p>Escribe un script en Bash que pida al usuario una cadena de texto o un número y determine si es capicúa (se lee igual de izquierda a derecha que de derecha a izquierda).</p>
+        </div>
+      </div>
+      <div class="section">
+        <h2 class="section-title">Solución</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · capicua.sh</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="kw">read</span> <span class="flag">-p</span> <span class="str">"Introduce una cadena o número: "</span> <span class="var">cadena</span>
+
+<span class="cmt"># Invertir la cadena usando rev</span>
+<span class="var">inversa</span>=<span class="op">$(</span><span class="cmd">echo</span> <span class="str">"</span><span class="var">$cadena</span><span class="str">"</span> <span class="op">|</span> <span class="cmd">rev</span><span class="op">)</span>
+
+<span class="kw">if</span> <span class="op">[[</span> <span class="str">"</span><span class="var">$cadena</span><span class="str">"</span> <span class="op">==</span> <span class="str">"</span><span class="var">$inversa</span><span class="str">"</span> <span class="op">]]</span>; <span class="kw">then</span>
+  <span class="cmd">echo</span> <span class="str">"La entrada '</span><span class="var">$cadena</span><span class="str">' ES capicúa."</span>
+<span class="kw">else</span>
+  <span class="cmd">echo</span> <span class="str">"La entrada '</span><span class="var">$cadena</span><span class="str">' NO es capicúa."</span>
+<span class="kw">fi</span></code></pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 14: Par o Impar -->
+  <div class="page" id="page-par_impar">
+    <div class="page-header">
+      <div class="breadcrumb">bash-apuntes / <span>ejercicios / par_impar.sh</span></div>
+      <h1 class="page-title">Par o Impar</h1>
+      <p class="page-desc">Ejercicio resuelto: Determinar si un número es par o impar.</p>
+    </div>
+    <div class="content">
+      <div class="section">
+        <h2 class="section-title">Enunciado</h2>
+        <div class="exercise">
+          <div class="exercise-title">Ejercicio 2</div>
+          <p>Crea un script que reciba un número entero como argumento o lo pida por teclado, e indique si es par o impar.</p>
+        </div>
+      </div>
+      <div class="section">
+        <h2 class="section-title">Solución</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · par_impar.sh</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="cmt"># Usar el primer argumento o pedirlo si no se proporciona</span>
+<span class="var">numero</span>=<span class="var">$1</span>
+<span class="kw">if</span> <span class="op">[[</span> <span class="flag">-z</span> <span class="str">"</span><span class="var">$numero</span><span class="str">"</span> <span class="op">]]</span>; <span class="kw">then</span>
+  <span class="kw">read</span> <span class="flag">-p</span> <span class="str">"Introduce un número: "</span> <span class="var">numero</span>
+<span class="kw">fi</span>
+
+<span class="cmt"># Comprobar si es un número válido (opcional pero recomendado)</span>
+<span class="kw">if</span> <span class="op">! [[</span> <span class="str">"</span><span class="var">$numero</span><span class="str">"</span> <span class="op">=~</span> <span class="str">^[0-9]+$</span> <span class="op">]]</span>; <span class="kw">then</span>
+  <span class="cmd">echo</span> <span class="str">"Error: La entrada no es un número entero válido."</span>
+  <span class="kw">exit</span> <span class="num">1</span>
+<span class="kw">fi</span>
+
+<span class="cmt"># Operación módulo para saber el resto de la división entre 2</span>
+<span class="kw">if</span> <span class="op">[[</span> <span class="op">$((</span><span class="var">numero</span> <span class="op">%</span> <span class="num">2</span><span class="op">))</span> <span class="flag">-eq</span> <span class="num">0</span> <span class="op">]]</span>; <span class="kw">then</span>
+  <span class="cmd">echo</span> <span class="str">"El número </span><span class="var">$numero</span><span class="str"> es PAR."</span>
+<span class="kw">else</span>
+  <span class="cmd">echo</span> <span class="str">"El número </span><span class="var">$numero</span><span class="str"> es IMPAR."</span>
+<span class="kw">fi</span></code></pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 15: Primo -->
+  <div class="page" id="page-primo">
+    <div class="page-header">
+      <div class="breadcrumb">bash-apuntes / <span>ejercicios / primo.sh</span></div>
+      <h1 class="page-title">Número Primo</h1>
+      <p class="page-desc">Ejercicio resuelto: Verificar si un número es primo.</p>
+    </div>
+    <div class="content">
+      <div class="section">
+        <h2 class="section-title">Enunciado</h2>
+        <div class="exercise">
+          <div class="exercise-title">Ejercicio 3</div>
+          <p>Desarrolla un script que determine si un número dado es primo (solo divisible por 1 y por sí mismo).</p>
+        </div>
+      </div>
+      <div class="section">
+        <h2 class="section-title">Solución</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · primo.sh</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="kw">read</span> <span class="flag">-p</span> <span class="str">"Introduce un número: "</span> <span class="var">num</span>
+
+<span class="kw">if</span> <span class="op">[[</span> <span class="var">$num</span> <span class="flag">-lt</span> <span class="num">2</span> <span class="op">]]</span>; <span class="kw">then</span>
+  <span class="cmd">echo</span> <span class="str">"El número </span><span class="var">$num</span><span class="str"> NO es primo."</span>
+  <span class="kw">exit</span> <span class="num">0</span>
+<span class="kw">fi</span>
+
+<span class="var">es_primo</span>=<span class="num">1</span>
+<span class="cmt"># Solo necesitamos comprobar hasta la mitad del número</span>
+<span class="kw">for</span> <span class="op">((</span> <span class="var">i</span>=<span class="num">2</span>; <span class="var">i</span><span class="op"><=</span><span class="var">$num</span><span class="op">/</span><span class="num">2</span>; <span class="var">i</span><span class="op">++ ))</span>; <span class="kw">do</span>
+  <span class="kw">if</span> <span class="op">[[</span> <span class="op">$((</span><span class="var">num</span> <span class="op">%</span> <span class="var">i</span><span class="op">))</span> <span class="flag">-eq</span> <span class="num">0</span> <span class="op">]]</span>; <span class="kw">then</span>
+    <span class="var">es_primo</span>=<span class="num">0</span>
+    <span class="kw">break</span>
+  <span class="kw">fi</span>
+<span class="kw">done</span>
+
+<span class="kw">if</span> <span class="op">[[</span> <span class="var">$es_primo</span> <span class="flag">-eq</span> <span class="num">1</span> <span class="op">]]</span>; <span class="kw">then</span>
+  <span class="cmd">echo</span> <span class="str">"El número </span><span class="var">$num</span><span class="str"> ES primo."</span>
+<span class="kw">else</span>
+  <span class="cmd">echo</span> <span class="str">"El número </span><span class="var">$num</span><span class="str"> NO es primo."</span>
+<span class="kw">fi</span></code></pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 16: Ordenación vectores -->
+  <div class="page" id="page-ordenacion">
+    <div class="page-header">
+      <div class="breadcrumb">bash-apuntes / <span>ejercicios / ordenacion.sh</span></div>
+      <h1 class="page-title">Ordenación de vectores</h1>
+      <p class="page-desc">Ejercicio resuelto: Ordenar un array (vector) de números de menor a mayor.</p>
+    </div>
+    <div class="content">
+      <div class="section">
+        <h2 class="section-title">Enunciado</h2>
+        <div class="exercise">
+          <div class="exercise-title">Ejercicio 4</div>
+          <p>Escribe un script que declare un array de números desordenados y los ordene usando el algoritmo de la burbuja (bubble sort) u otro método, mostrando el array antes y después de ordenar.</p>
+        </div>
+      </div>
+      <div class="section">
+        <h2 class="section-title">Solución</h2>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+            <span class="code-lang">bash · ordenacion.sh</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+          </div>
+          <div class="code-body"><pre><code><span class="cmt">#!/bin/bash</span>
+
+<span class="cmt"># Declarar el array (vector)</span>
+<span class="var">numeros</span>=<span class="op">(</span><span class="num">5</span> <span class="num">2</span> <span class="num">9</span> <span class="num">1</span> <span class="num">7</span> <span class="num">3</span> <span class="num">8</span> <span class="num">6</span> <span class="num">4</span><span class="op">)</span>
+<span class="var">n</span>=<span class="var">${#numeros[@]}</span>
+
+<span class="cmd">echo</span> <span class="str">"Array original: </span><span class="var">${numeros[*]}</span><span class="str">"</span>
+
+<span class="cmt"># Algoritmo de la burbuja (Bubble sort)</span>
+<span class="kw">for</span> <span class="op">((</span> <span class="var">i</span>=<span class="num">0</span>; <span class="var">i</span><span class="op"><</span><span class="var">n</span>; <span class="var">i</span><span class="op">++ ))</span>; <span class="kw">do</span>
+  <span class="kw">for</span> <span class="op">((</span> <span class="var">j</span>=<span class="num">0</span>; <span class="var">j</span><span class="op"><</span><span class="var">n</span><span class="op">-</span><span class="var">i</span><span class="op">-</span><span class="num">1</span>; <span class="var">j</span><span class="op">++ ))</span>; <span class="kw">do</span>
+    <span class="kw">if</span> <span class="op">[[</span> <span class="var">${numeros[$j]}</span> <span class="flag">-gt</span> <span class="var">${numeros[$((j+1))]}</span> <span class="op">]]</span>; <span class="kw">then</span>
+      <span class="cmt"># Intercambiar elementos</span>
+      <span class="var">temp</span>=<span class="var">${numeros[$j]}</span>
+      <span class="var">numeros[$j]</span>=<span class="var">${numeros[$((j+1))]}</span>
+      <span class="var">numeros[$((j+1))]</span>=<span class="var">$temp</span>
+    <span class="kw">fi</span>
+  <span class="kw">done</span>
+<span class="kw">done</span>
+
+<span class="cmd">echo</span> <span class="str">"Array ordenado: </span><span class="var">${numeros[*]}</span><span class="str">"</span>
+
+<span class="cmt"># Alternativa más rápida usando sort:</span>
+<span class="cmt"># ordenados=($(printf "%s\n" "${numeros[@]}" | sort -n))</span>
+<span class="cmt"># echo "Con sort: ${ordenados[*]}"</span></code></pre></div>
         </div>
       </div>
     </div>
